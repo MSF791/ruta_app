@@ -3,18 +3,33 @@ import { useState } from "react";
 
 //components
 import MainContent from "../components/MainContent";
-import { Login } from "../components/Login";
+import { Login } from "../components/LoginView";
+import ProfileView from "./ProfileView";
+import { useAuth } from "../hooks/AuthProvider";
+import { RouteView } from "./RouteView";
+import FormRouteView from "../components/maps/FormRoute";
 
 export function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeComponent, setActiveComponent] = useState(null);
-
-  const handleHomeClick = () => {
-    setActiveComponent("");
-  };
+  const { isAuthenticated, logOut } = useAuth();
 
   const LoginView = () => {
-    setActiveComponent("login")
+    setActiveComponent("login");
+  };
+
+  const ProfileViewClick = () => {
+    setSidebarOpen(false);
+    setActiveComponent("profile");
+  };
+
+  const RouteViewClick = () => {
+    setSidebarOpen(false)
+    setActiveComponent("route_view")
+  }
+
+  const FormRouteViewClick = () => {
+    setActiveComponent("form_route")
   }
 
   const renderComponent = () => {
@@ -22,18 +37,35 @@ export function Dashboard() {
       case "login":
         return (
           <div>
-             <Login/>
+            <Login />
           </div>
         );
-    default:
-      return(
-        <div>
+      case "profile":
+        return (
+          <div>
+            <ProfileView />
+          </div>
+        );
+      case "route_view":
+        return (
+          <div>
+            <RouteView form={FormRouteViewClick}/>
+          </div>
+        )
+      case "form_route":
+        return (
+          <div>
+            <FormRouteView/>
+          </div>
+        )
+      default:
+        return (
+          <div>
             <MainContent />
-        </div>
-      )
-      
+          </div>
+        );
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex bg-blue-50">
@@ -58,13 +90,16 @@ export function Dashboard() {
               </a>
             </li>
             <li className="my-2">
-              <a href="#" className="text-white hover:text-blue-200">
+              <a
+                onClick={ProfileViewClick}
+                className="text-white hover:text-blue-200 cursor-pointer"
+              >
                 Perfil
               </a>
             </li>
             <li className="my-2">
-              <a href="#" className="text-white hover:text-blue-200">
-                Configuración
+              <a onClick={RouteViewClick} className="text-white hover:text-blue-200 cursor-pointer">
+                Planear Rutas 
               </a>
             </li>
           </ul>
@@ -72,7 +107,13 @@ export function Dashboard() {
       </aside>
 
       {/* Main content */}
-      <div className={sidebarOpen ? "flex-1 flex flex-col ml-0 blur-sm" : "flex-1 flex flex-col ml-0"}>
+      <div
+        className={
+          sidebarOpen
+            ? "flex-1 flex flex-col ml-0 blur-sm"
+            : "flex-1 flex flex-col ml-0"
+        }
+      >
         <header className="bg-white shadow-md p-4 flex justify-between items-center">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -81,7 +122,21 @@ export function Dashboard() {
             ☰
           </button>
           <div className="flex">
-          <button className="bg-blue-600 rounded-lg text-white p-2 shadow-lg mr-4 hover:bg-blue-700 ease-in-out" onClick={LoginView}>Iniciar Sesión - Registro</button>
+            {isAuthenticated ? (
+              <button
+                className="bg-red-600 rounded-lg text-white p-2 shadow-lg mr-4 hover:bg-red-700 ease-in-out"
+                onClick={logOut}
+              >
+                Cerrar Sesión
+              </button>
+            ) : (
+              <button
+                className="bg-blue-600 rounded-lg text-white p-2 shadow-lg mr-4 hover:bg-blue-700 ease-in-out"
+                onClick={LoginView}
+              >
+                Iniciar Sesión - Registro
+              </button>
+            )}
           </div>
         </header>
 
@@ -90,7 +145,13 @@ export function Dashboard() {
         </main>
 
         {/* Footer */}
-        <footer className={sidebarOpen ? "bg-blue-700 text-white text-center p-4 blur-sm" : "bg-blue-700 text-white text-center p-4"}>
+        <footer
+          className={
+            sidebarOpen
+              ? "bg-blue-700 text-white text-center p-4 blur-sm"
+              : "bg-blue-700 text-white text-center p-4"
+          }
+        >
           © 2024 - Julian Tique
         </footer>
       </div>
